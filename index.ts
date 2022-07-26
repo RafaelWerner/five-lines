@@ -307,18 +307,18 @@ function assertExhausted(x: never): never {
 
 function transformTile(tile: RawTile) {
   switch (tile) {
-    case RawTile.AIR :return new Air();
-    case RawTile.PLAYER :return new Player();
-    case RawTile.UNBREAKABLE :return new Unbreakable();
-    case RawTile.STONE :return new Stone();
-    case RawTile.FALLING_STONE :return new FallingStone();
-    case RawTile.BOX :return new Box();
-    case RawTile.FALLING_BOX :return new FallingBox();
-    case RawTile.FLUX :return new Flux();
-    case RawTile.KEY1 :return new Key1();
-    case RawTile.LOCK1 :return new Lock1();
-    case RawTile.KEY2 :return new Key2();
-    case RawTile.LOCK2 :return new Lock2();
+    case RawTile.AIR: return new Air();
+    case RawTile.PLAYER: return new Player();
+    case RawTile.UNBREAKABLE: return new Unbreakable();
+    case RawTile.STONE: return new Stone();
+    case RawTile.FALLING_STONE: return new FallingStone();
+    case RawTile.BOX: return new Box();
+    case RawTile.FALLING_BOX: return new FallingBox();
+    case RawTile.FLUX: return new Flux();
+    case RawTile.KEY1: return new Key1();
+    case RawTile.LOCK1: return new Lock1();
+    case RawTile.KEY2: return new Key2();
+    case RawTile.LOCK2: return new Lock2();
     default: assertExhausted(tile);
   }
 }
@@ -328,7 +328,7 @@ function transformMap() {
   for (let y = 0; y < rawMap.length; y++) {
     map[y] = new Array(rawMap[y].length);
     for (let x = 0; x < rawMap[y].length; x++) {
-      map[y][x] = transformTile(rawMap[y][x])
+      map[y][x] = transformTile(rawMap[y][x]);
     }
   }
 }
@@ -346,7 +346,7 @@ function removeLock1() {
 function removeLock2() {
   for (let y = 0; y < map.length; y++) {
     for (let x = 0; x < map[y].length; x++) {
-      if (map[y][x].isLock2) {
+      if (map[y][x].isLock2()) {
         map[y][x] = new Air();
       }
     }
@@ -396,13 +396,9 @@ function update() {
 
 function handleInputs() {
   while (inputs.length > 0) {
-    let current = inputs.pop();
-    handleInput(current);
+    let input = inputs.pop();
+    input.handle();
   }
-}
-
-function handleInput(input: Input) {
-  input.handle();
 }
 
 function updateMap() {
@@ -418,7 +414,7 @@ function updateTile(x: number, y: number) {
     && map[y + 1][x].isAir()) {
     map[y + 1][x] = new FallingStone();
     map[y][x] = new Air();
-  } else if ((map[y][x].isBox() || map[y][x].isFallingBox)
+  } else if ((map[y][x].isBox() || map[y][x].isFallingBox())
     && map[y + 1][x].isAir()) {
     map[y + 1][x] = new FallingBox();
     map[y][x] = new Air();

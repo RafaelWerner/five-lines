@@ -1,0 +1,23 @@
+name: Build Typescript app
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup TypeScript
+        uses: Tyler887/TypeScript-GitHub-Actions@1.0
+      - name: Build app
+        run: |
+          yarn tsc
+

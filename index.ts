@@ -27,6 +27,27 @@ let rawMap: RawTile[][] = [
 let map: Tile[][];
 let inputs: Input[] = [];
 
+interface FallingState {
+  isFalling(): boolean;
+  moveHorizontal(tile: Tile, dx: number): void;
+}
+
+class Falling implements FallingState {
+  isFalling() { return true; }
+  moveHorizontal(tile: Tile, dx: number) { }
+}
+
+class Resting implements FallingState {
+  isFalling() { return false; }
+  moveHorizontal(tile: Tile, dx: number) {
+    if (map[playery][playerx + dx + dx].isAir()
+    && !map[playery + 1][playerx + dx].isAir()) {
+      map[playery][playerx + dx + dx] = tile;
+      moveToTile(playerx + dx, playery);
+    }
+  }
+}
+
 interface Input {
   handle(): void;
 }
@@ -60,6 +81,7 @@ interface Tile {
   moveVertical(dy: number): void;
   drop(): void;
   rest(): void;
+  isFalling(): boolean;
 }
 
 class Air implements Tile {
@@ -77,8 +99,9 @@ class Air implements Tile {
   moveVertical(dy: number) {
       moveToTile(playerx, playery + dy);
   }
-  drop() {}
-  rest() {}
+  drop() { }
+  rest() { }
+  isFalling() { return false; }
 }
 
 class Flux implements Tile {
@@ -99,8 +122,9 @@ class Flux implements Tile {
   moveVertical(dy: number) {
     moveToTile(playerx, playery + dy);
   }
-  drop() {}
-  rest() {}
+  drop() { }
+  rest() { }
+  isFalling() { return false; }
 }
 
 class Unbreakable implements Tile {
@@ -120,8 +144,9 @@ class Unbreakable implements Tile {
   }
   moveHorizontal(dx: number) { }
   moveVertical(dy: number) { }
-  drop() {}
-  rest() {}
+  drop() { }
+  rest() { }
+  isFalling() { return false; }
 }
 
 class Player implements Tile {
@@ -135,37 +160,17 @@ class Player implements Tile {
   draw(g: CanvasRenderingContext2D, x: number, y: number) { }
   moveHorizontal(dx: number) { }
   moveVertical(dy: number) { }
-  drop() {}
-  rest() {}
-}
-
-interface FallingState {
-  isFalling(): boolean;
-  moveHorizontal(tile: Tile, dx: number): void;
-}
-
-class Falling implements FallingState {
-  isFalling() { return true; }
-  moveHorizontal(tile: Tile, dx: number) { }
-}
-
-class Resting implements FallingState {
+  drop() { }
+  rest() { }
   isFalling() { return false; }
-  moveHorizontal(tile: Tile, dx: number) {
-    if (map[playery][playerx + dx + dx].isAir()
-    && !map[playery + 1][playerx + dx].isAir()) {
-      map[playery][playerx + dx + dx] = tile;
-      moveToTile(playerx + dx, playery);
-    }
-  }
 }
 
 class Stone implements Tile {
   constructor(private falling: FallingState) { }
   isAir() { return false; }
   isStony() { return true; }
-  isFallingStone() { 
-    return this.falling.isFalling(); 
+  isFallingStone() {
+    return this.falling.isFalling();
   }
   isBoxy() { return false; }
   isFallingBox() { return false; }
@@ -181,6 +186,7 @@ class Stone implements Tile {
   moveVertical(dy: number) { }
   drop() { this.falling = new Falling; }
   rest() { this.falling = new Resting; }
+  isFalling() { return this.falling.isFalling(); }
 }
 
 class Box implements Tile {
@@ -189,8 +195,8 @@ class Box implements Tile {
   isStony() { return false; }
   isFallingStone() { return false; }
   isBoxy() { return true; }
-  isFallingBox() { 
-    return this.falling.isFalling(); 
+  isFallingBox() {
+    return this.falling.isFalling();
   }
   isLock1() { return false; }
   isLock2() { return false; }
@@ -204,6 +210,7 @@ class Box implements Tile {
   moveVertical(dy: number) { }
   drop() { this.falling = new Falling; }
   rest() { this.falling = new Resting; }
+  isFalling() { return this.falling.isFalling(); }
 }
 
 class Key1 implements Tile {
@@ -226,8 +233,9 @@ class Key1 implements Tile {
     removeLock1();
     moveToTile(playerx, playery + dy);
   }
-  drop() {}
-  rest() {}
+  drop() { }
+  rest() { }
+  isFalling() { return false; }
 }
 
 class Lock1 implements Tile {
@@ -244,8 +252,9 @@ class Lock1 implements Tile {
   }
   moveHorizontal(dx: number) { }
   moveVertical(dy: number) { }
-  drop() {}
-  rest() {}
+  drop() { }
+  rest() { }
+  isFalling() { return false; }
 }
 
 class Key2 implements Tile {
@@ -268,8 +277,9 @@ class Key2 implements Tile {
     removeLock2();
     moveToTile(playerx, playery + dy);
   }
-  drop() {}
-  rest() {}
+  drop() { }
+  rest() { }
+  isFalling() { return false; }
 }
 
 class Lock2 implements Tile {
@@ -286,8 +296,9 @@ class Lock2 implements Tile {
   }
   moveHorizontal(dx: number) { }
   moveVertical(dy: number) { }
-  drop() {}
-  rest() {}
+  drop() { }
+  rest() { }
+  isFalling() { return false; }
 }
 
 function assertExhausted(x: never): never {
